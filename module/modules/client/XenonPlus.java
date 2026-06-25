@@ -1,0 +1,118 @@
+/*
+ * Decompiled with https://jar.tools
+ */
+package com.xenon.module.modules.client;
+
+import com.xenon.module.Category;
+import com.xenon.module.Module;
+import com.xenon.module.modules.client.Themes;
+import com.xenon.setting.ModeSetting;
+import com.xenon.setting.Setting;
+import java.awt.Color;
+
+public final class XenonPlus
+extends Module {
+    private static XenonPlus INSTANCE;
+    private final Setting<Color> accentColor = new Setting("Color", new Color(107, 211, 165, 255));
+    private final Setting<Color> bgColor = new Setting("Background", new Color(18, 24, 39, 255));
+    private final Setting<Boolean> animations = new Setting("Animations", true);
+    private final Setting<Double> tracerWidth = new Setting("Tracer Width", 1, 1, 6);
+    private final ModeSetting menuSize;
+
+    public XenonPlus() {
+        super("Xenon +", Category.CLIENT);
+        this.menuSize = new ModeSetting("Menu Size", "5", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10");
+        this.addSetting(this.accentColor);
+        this.addSetting(this.bgColor);
+        this.addSetting(this.animations);
+        this.addSetting(this.tracerWidth);
+        this.addSetting(this.menuSize);
+        INSTANCE = this;
+    }
+
+    public static int getAccentARGB() {
+        Color c = XenonPlus.getAccentColor();
+        return c.getAlpha() << 24 | c.getRed() << 16 | c.getGreen() << 8 | c.getBlue();
+    }
+
+    public static Color getAccentColor() {
+        Color themed = Themes.getAccent();
+        if (themed != null) {
+            return themed;
+        }
+        if (INSTANCE == null) {
+            return new Color(107, 211, 165, 255);
+        }
+        return INSTANCE.accentColor.getValue();
+    }
+
+    public static int getBackgroundARGB() {
+        Color c = XenonPlus.getBackgroundColor();
+        return c.getAlpha() << 24 | c.getRed() << 16 | c.getGreen() << 8 | c.getBlue();
+    }
+
+    public static Color getBackgroundColor() {
+        if (INSTANCE == null) {
+            return new Color(18, 24, 39, 255);
+        }
+        Color c = INSTANCE.bgColor.getValue();
+        if (c == null) {
+            return new Color(18, 24, 39, 255);
+        }
+        if (c.getAlpha() < 200) {
+            return new Color(c.getRed(), c.getGreen(), c.getBlue(), 255);
+        }
+        return c;
+    }
+
+    public static boolean animationsEnabled() {
+        if (INSTANCE == null) {
+            return true;
+        }
+        return ((Boolean)INSTANCE.animations.getValue()).booleanValue();
+    }
+
+    public static int menuSizePercent() {
+        if (INSTANCE == null) {
+            return 5;
+        }
+        try {
+            return Integer.parseInt((String)INSTANCE.menuSize.getValue());
+        }
+        catch (Exception ignored) {
+            return 5;
+        }
+    }
+
+    public static float tracerLineWidth() {
+        if (INSTANCE == null) {
+            return 1f;
+        }
+        double v = 1;
+        try {
+            v = ((Double)INSTANCE.tracerWidth.getValue()).doubleValue();
+        }
+        catch (Exception e2) {
+            if (Double.isNaN(v) || Double.isInfinite(v)) {
+                v = 1;
+            }
+            if (v < 1) {
+                v = 1;
+            }
+            if (v > 6) {
+                v = 6;
+            }
+            return v;
+        }
+        if (Double.isNaN(v) || Double.isInfinite(v)) {
+            v = 1;
+        }
+        if (v < 1) {
+            v = 1;
+        }
+        if (v > 6) {
+            v = 6;
+        }
+        return v;
+    }
+}
